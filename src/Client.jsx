@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Client = axios.create({
-  baseURL: "http://localhost:9080/api",
+  baseURL: "https://proctorxbackend-1.onrender.com/api",
   headers: {
     "Content-Type": "application/json"
   },
