@@ -1,0 +1,209 @@
+/* ===== Page ===== */
+.admin-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #fff;
+  padding: 30px;
+}
+
+/* ===== Container ===== */
+.admin-container {
+  max-width: 1200px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  animation: fadeUp 0.6s ease;
+}
+
+/* ===== Header ===== */
+.admin-container h2 {
+  margin-bottom: 5px;
+}
+
+.admin-subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+/* ===== Table ===== */
+.monitor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.monitor-table thead {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.monitor-table th,
+.monitor-table td {
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.monitor-table th {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ===== Rows ===== */
+.monitor-table tbody tr {
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease;
+}
+
+.monitor-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ===== Risk ===== */
+.risk-low {
+  color: #7CFF7C;
+  font-weight: bold;
+}
+
+.risk-mid {
+  color: #FFD966;
+  font-weight: bold;
+}
+
+.risk-high {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+/* ===== Inactive ===== */
+.inactive-yes {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.inactive-no {
+  color: #7cff7c;
+  font-weight: bold;
+}
+
+/* ===== Action Buttons ===== */
+.action-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: transform 0.15s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.2);
+}
+
+/* ===== Empty ===== */
+.empty-row {
+  text-align: center;
+  opacity: 0.8;
+  padding: 20px;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ===== Page ===== */
+.results-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #fff;
+  padding: 30px;
+}
+
+/* ===== Container ===== */
+.results-container {
+  max-width: 900px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  animation: fadeUp 0.6s ease;
+}
+
+/* ===== Title ===== */
+.results-container h2 {
+  margin-bottom: 20px;
+}
+
+/* ===== Empty State ===== */
+.empty-results {
+  text-align: center;
+  opacity: 0.8;
+  margin-top: 20px;
+}
+
+/* ===== Table ===== */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.results-table thead {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.results-table th,
+.results-table td {
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.results-table th {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ===== Rows ===== */
+.results-table tbody tr {
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease;
+}
+
+.results-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ===== Status ===== */
+.pass {
+  color: #7CFF7C;
+  font-weight: bold;
+}
+
+.fail {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
