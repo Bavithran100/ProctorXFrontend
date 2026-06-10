@@ -50,7 +50,7 @@ export default function Login() {
 
   function loginWithGoogle() {
     window.location.href =
-      "http://localhost:9080/oauth2/authorization/google";
+      "https://proctorxbackend-1.onrender.com/oauth2/authorization/google";
   }
 
   useEffect(() => {
