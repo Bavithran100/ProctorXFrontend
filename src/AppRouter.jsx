@@ -27,7 +27,14 @@ export default function AppRouter() {
 
   // ⭐ WAIT until auth check completes
   if (!authChecked) {
-    return <div>Loading...</div>; // or spinner
+    return (
+      <div className="app-loading-screen">
+        <div className="loading-orbit"><span className="brand-symbol">P</span></div>
+        <h2>Preparing your secure environment</h2>
+        <p>Verifying your session and workspace access</p>
+        <div className="loading-progress"><span /></div>
+      </div>
+    );
   }
   return (
 

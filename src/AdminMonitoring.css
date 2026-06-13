@@ -194,3 +194,75 @@
     min-width: 760px;
   }
 }
+
+/* Monitoring surfaces inherit the ProctorX SaaS design system. */
+.table-shell {
+  border-color: var(--border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.monitor-table thead,
+.results-table thead {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.monitor-table th,
+.monitor-table td,
+.results-table th,
+.results-table td {
+  padding: 14px;
+  border-color: var(--border);
+}
+
+.monitor-table th,
+.results-table th {
+  color: #a1a1aa;
+  font-size: 0.69rem;
+}
+
+.monitor-table tbody tr:hover,
+.results-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.045);
+}
+
+.risk-low,
+.inactive-no {
+  color: #6ee7b7;
+}
+
+.risk-mid {
+  color: #fcd34d;
+}
+
+.risk-high,
+.inactive-yes {
+  color: #fda4af;
+}
+
+.toggle-bar label,
+.events-stack div {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.toggle-bar input {
+  accent-color: var(--primary);
+}
+
+.info-tab {
+  border-radius: 8px;
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.info-tab:hover {
+  border-color: rgba(129, 140, 248, 0.34);
+}
+
+.active-tab {
+  border-color: rgba(129, 140, 248, 0.42);
+  background: rgba(99, 102, 241, 0.12);
+  color: #c7d2fe;
+  box-shadow: none;
+}

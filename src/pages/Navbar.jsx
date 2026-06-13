@@ -23,12 +23,15 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <h3>ProctorX</h3>
-        <span>Secure online examination control</span>
+        <span className="brand-symbol">P</span>
+        <div>
+          <h3>ProctorX</h3>
+          <span>Examination workspace</span>
+        </div>
       </div>
 
       <div className="navbar-right">
-        <span className="user-info">{user} ({role})</span>
+        <span className="user-info"><i>{user?.slice(0, 1)?.toUpperCase() || "U"}</i><span>{user}<small>{role}</small></span></span>
         <button className="logout-btn" onClick={handleLogout}>
           Logout
         </button>
