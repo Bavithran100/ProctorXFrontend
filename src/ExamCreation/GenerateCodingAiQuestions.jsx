@@ -120,24 +120,11 @@ JSON format:
     if (!solution) return alert("Paste solution");
 
     try {
-      const res = await fetch(
-        "https://judge029.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": "b0ef6114d0msh70ec7d7f6544e50p1bf18djsnb08c31664023",
-            "X-RapidAPI-Host": "judge029.p.rapidapi.com"
-          },
-          body: JSON.stringify({
-            language_id: 62,
-            source_code: solution,
-            stdin: input
-          })
-        }
-      );
-
-      const data = await res.json();
+      const res = await Client.post("/code-execution/generate-output", {
+        script: solution,
+        stdin: input
+      });
+      const data = res.data;
 
       if (!data.stdout) {
         alert("Error in code");
