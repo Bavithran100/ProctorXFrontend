@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CountDownTimer({
   durationMinutes,
   onTimeUp
 }) {
+  const timeUpHandled = useRef(false);
   const [secondsLeft, setSecondsLeft] = useState(
     durationMinutes * 60
   );
 
   useEffect(() => {
-    setSecondsLeft(durationMinutes * 60);
-  }, [durationMinutes]);
-
-  useEffect(() => {
     if (secondsLeft <= 0) {
-      
+      if (!timeUpHandled.current) {
+        timeUpHandled.current = true;
+        onTimeUp();
+      }
       return;
     }
 

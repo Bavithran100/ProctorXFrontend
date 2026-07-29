@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import Client from "../Client";
 import "../App.css";
+import CountDownTimer from "./CountDownTimer";
 
 export default function CodingExam() {
+  const autoSubmittedRef = useRef(false);
+  const scoreRef = useRef(0);
   const { examId } = useParams();
   const navigate = useNavigate();
   const BOILER_CODE = `
@@ -28,15 +31,122 @@ public class Main {
 `;
 
   const [questions, setQuestions] = useState([]);
+  const [exam, setExam] = useState(null);
   const [current, setCurrent] = useState(0);
   const [code, setCode] = useState(BOILER_CODE);
   const [results, setResults] = useState([]);
   const [score, setScore] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  const submitExam = useCallback(async () => {
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      const res = await Client.post(
+        `/student/exams/${examId}/coding-submit`,
+        { score: scoreRef.current }
+      );
+
+      alert("Exam submitted. Score: " + res.data.score);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Unable to submit coding exam");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [examId, navigate, submitting]);
 
   useEffect(() => {
-    Client.get(`/student/exams/${examId}/coding-questions`)
-      .then(res => setQuestions(res.data));
-  }, []);
+    scoreRef.current = score;
+  }, [score]);
+
+  useEffect(() => {
+    async function startCodingExam() {
+      try {
+        const startResponse = await Client.get(`/student/exams/${examId}/start`);
+        const questionsResponse = await Client.get(`/student/exams/${examId}/coding-questions`);
+        setExam(startResponse.data);
+        setQuestions(questionsResponse.data);
+      } catch (error) {
+        console.error(error);
+        alert("Unable to start coding exam");
+        navigate("/dashboard");
+      }
+    }
+
+    startCodingExam();
+  }, [examId, navigate]);
+
+  useEffect(() => {
+    if (!exam) return;
+
+    function logEvent(event) {
+      Client.post(
+        `/student/exams/${exam.id}/malpractice`,
+        null,
+        { params: { event } }
+      ).catch(() => {});
+    }
+
+    const onBlur = () => logEvent("WINDOW_BLUR");
+    const onVisibilityChange = () => {
+      if (document.hidden) logEvent("TAB_SWITCH");
+    };
+    const onCopy = () => logEvent("COPY");
+    const onPaste = () => logEvent("PASTE");
+    const onContextMenu = event => {
+      event.preventDefault();
+      logEvent("RIGHT_CLICK");
+    };
+    const onPageHide = () => logEvent("PAGE_REFRESH");
+
+    window.addEventListener("blur", onBlur);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    document.addEventListener("copy", onCopy);
+    document.addEventListener("paste", onPaste);
+    document.addEventListener("contextmenu", onContextMenu);
+
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      document.removeEventListener("copy", onCopy);
+      document.removeEventListener("paste", onPaste);
+      document.removeEventListener("contextmenu", onContextMenu);
+    };
+  }, [exam]);
+
+  useEffect(() => {
+    if (!exam) return;
+
+    const interval = setInterval(() => {
+      Client.post(`/student/exams/${exam.id}/heartbeat`)
+        .then(response => {
+          if (response.headers["x-exam-warning"]) {
+            alert("Warning: " + response.data);
+          }
+        })
+        .catch(error => {
+          if (
+            error.response?.status === 403 &&
+            error.response?.data === "TIME_OVER" &&
+            !autoSubmittedRef.current
+          ) {
+            autoSubmittedRef.current = true;
+            alert("Time finished. Submitting coding exam...");
+            submitExam();
+          } else if (error.response?.status === 403) {
+            alert("Your exam session was stopped by admin");
+            navigate("/dashboard");
+          }
+        });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [exam, navigate, submitExam]);
 
   const q = questions[current];
 
@@ -84,19 +194,7 @@ public class Main {
     setCode("");
   }
 
-  async function submitExam() {
-    console.log(score);
-    const res = await Client.post(
-      `/student/exams/${examId}/coding-submit`,
-      { score }
-    );
-
-    alert("Exam submitted. Score: " + res.data.score);
-
-    navigate("/dashboard");
-  }
-
-  if (!q) {
+  if (!q || !exam) {
     return (
       <div className="exam-page">
         <div className="exam-container loading-shell">
@@ -132,6 +230,17 @@ public class Main {
             </div>
           </div>
         </div>
+
+        <CountDownTimer
+          durationMinutes={exam.duration}
+          onTimeUp={() => {
+            if (!autoSubmittedRef.current) {
+              autoSubmittedRef.current = true;
+              alert("Time is over. Submitting coding exam...");
+              submitExam();
+            }
+          }}
+        />
 
         <h3>Sample Testcases</h3>
         <div className="sample-grid">
@@ -191,8 +300,8 @@ public class Main {
               Next Question
             </button>
           ) : (
-            <button className="submit-btn" onClick={submitExam}>
-              Submit Exam
+            <button className="submit-btn" onClick={submitExam} disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Exam"}
             </button>
           )}
         </div>
