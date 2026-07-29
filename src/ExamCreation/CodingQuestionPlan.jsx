@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "../App.css";
 
 export default function CodingQuestionPlan() {
@@ -7,7 +7,7 @@ export default function CodingQuestionPlan() {
 You are an academic coding-exam planner for CSE students.
 
 Turn the coordinator's brief into a practical plan for Java coding questions.
-Choose an appropriate number of questions, difficulty, algorithms, constraints,
+Choose appropriate difficulty, algorithms, constraints,
 and edge-case coverage for the stated student level. Aim for correct, efficient,
 and assessable questions.
 
@@ -27,6 +27,8 @@ Use difficulty only as EASY, MEDIUM, HARD, or MIXED.
 
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const plannedQuestionCount = Number(location.state?.questionCount);
   const [planningPrompt, setPlanningPrompt] = useState("");
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,7 +51,10 @@ Use difficulty only as EASY, MEDIUM, HARD, or MIXED.
           model: "llama-3.1-8b-instant",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: planningPrompt }
+            {
+              role: "user",
+              content: `${planningPrompt}\n\nThis exam must contain exactly ${plannedQuestionCount} coding questions. Return that exact value in questionCount.`
+            }
           ],
           temperature: 0.3
         })
@@ -64,7 +69,7 @@ Use difficulty only as EASY, MEDIUM, HARD, or MIXED.
 
       setPlan({
         topic: generatedPlan.topic || planningPrompt,
-        questionCount: Math.max(1, Number(generatedPlan.questionCount) || 1),
+        questionCount: plannedQuestionCount || Math.max(1, Number(generatedPlan.questionCount) || 1),
         difficulty: generatedPlan.difficulty || "MEDIUM",
         targetComplexity: generatedPlan.targetComplexity || "",
         constraints: generatedPlan.constraints || "",

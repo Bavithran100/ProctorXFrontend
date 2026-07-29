@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Client from "../Client";
 import "../App.css";
@@ -6,6 +6,8 @@ import "../App.css";
 export default function AddQuestions() {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const plannedQuestionCount = location.state?.questionCount;
 
   const [current, setCurrent] = useState({
     questionText: "",
@@ -13,8 +15,7 @@ export default function AddQuestions() {
     optionB: "",
     optionC: "",
     optionD: "",
-    correctOption: "",
-    marks: 0
+    correctOption: ""
   });
 
   function handleChange(e) {
@@ -29,8 +30,7 @@ export default function AddQuestions() {
       optionB: "",
       optionC: "",
       optionD: "",
-      correctOption: "",
-      marks: 0
+      correctOption: ""
     });
   }
 
@@ -49,7 +49,7 @@ export default function AddQuestions() {
           <div>
             <div className="hero-badge">Manual question builder</div>
             <h2>Add Questions</h2>
-            <p>Compose question text, options, answers, and marks for this exam.</p>
+            <p>Compose question text and answers. Marks are assigned automatically from the exam total.</p>
           </div>
         </div>
 
@@ -83,12 +83,12 @@ export default function AddQuestions() {
               <label>Correct Answer</label>
               <input value={current.correctOption} name="correctOption" placeholder="Correct Answer (A/B/C/D)" onChange={handleChange} />
             </div>
-            <div className="field-stack">
-              <label>Marks</label>
-              <input value={current.marks} type="number" name="marks" placeholder="Marks" onChange={handleChange} />
-            </div>
           </div>
         </div>
+
+        {plannedQuestionCount && (
+          <p className="helper-text">The backend will divide the exam total across {plannedQuestionCount} questions.</p>
+        )}
 
         <button className="primary-btn" onClick={addQuestion}>
           Add Question

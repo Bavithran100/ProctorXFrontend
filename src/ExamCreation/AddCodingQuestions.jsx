@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Client from "../Client";
 import "../App.css";
@@ -6,11 +6,12 @@ import "../App.css";
 export default function AddCodingQuestion() {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const plannedQuestionCount = location.state?.questionCount;
   const [question, setQuestion] = useState({
     title: "",
     description: "",
     difficulty: "EASY",
-    marks: 10,
     testCases: [{ input: "", output: "" }]
   });
 
@@ -53,7 +54,7 @@ export default function AddCodingQuestion() {
           <div>
             <div className="hero-badge">Coding question authoring</div>
             <h2>Add Coding Question</h2>
-            <p>Define the prompt, marks, and testcase pairs for this coding assessment.</p>
+            <p>Define the prompt and testcase pairs. Marks are assigned automatically from the exam total.</p>
           </div>
         </div>
 
@@ -76,14 +77,9 @@ export default function AddCodingQuestion() {
             />
           </div>
 
-          <div className="field-stack">
-            <label>Marks</label>
-            <input
-              name="marks"
-              type="number"
-              onChange={handleChange}
-            />
-          </div>
+          {plannedQuestionCount && (
+            <p className="helper-text">This exam requires {plannedQuestionCount} coding questions. The server splits total marks across them.</p>
+          )}
         </div>
 
         <div className="question-card" style={{ marginTop: "20px" }}>

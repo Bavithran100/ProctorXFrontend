@@ -25,12 +25,12 @@ export default function AdminLiveMonitor() {
     let remark = "";
 
     if (action === "WARN") {
-      remark = prompt("Enter warning message:");
+      remark = prompt("Enter prompt message for the student:");
       if (!remark) return;
     }
 
     if (action === "TERMINATE") {
-      const ok = window.confirm("Terminate this exam?");
+      const ok = window.confirm("Submit this student's current progress and terminate the exam?");
       if (!ok) return;
     }
 
@@ -77,6 +77,9 @@ export default function AdminLiveMonitor() {
                 <th>Student</th>
                 <th>Exam</th>
                 <th>Status</th>
+                <th>Time Left</th>
+                <th>Score</th>
+                <th>Reconnects</th>
                 <th>Risk</th>
                 <th>Flags</th>
                 <th>Inactive</th>
@@ -88,7 +91,7 @@ export default function AdminLiveMonitor() {
             <tbody>
               {sessions.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="empty-row">
+                  <td colSpan="11" className="empty-row">
                     No active exam sessions
                   </td>
                 </tr>
@@ -99,6 +102,10 @@ export default function AdminLiveMonitor() {
                   <td>{s.studentName}</td>
                   <td>{s.examTitle}</td>
                   <td>{s.status}</td>
+
+                  <td>{Math.floor(s.remainingSeconds / 60)}:{String(s.remainingSeconds % 60).padStart(2, "0")}</td>
+                  <td>{s.currentScore}</td>
+                  <td>{s.disconnectCount} / 3</td>
 
                   <td className={riskClass(s.riskScore)}>
                     {s.riskScore}
@@ -123,6 +130,7 @@ export default function AdminLiveMonitor() {
                   </td>
 
                   <td>
+                    {(s.status === "ACTIVE" || s.status === "WAITING") && (
                     <div className="action-stack">
                       <button
                         className="action-btn warn"
@@ -131,12 +139,23 @@ export default function AdminLiveMonitor() {
                         !
                       </button>
 
-                      <button
-                        className="action-btn lock"
-                        onClick={() => takeAction(s.sessionId, "LOCK")}
-                      >
-                        L
-                      </button>
+                      {s.status === "WAITING" ? (
+                        <button
+                          className="action-btn lock"
+                          onClick={() => takeAction(s.sessionId, "NORMAL")}
+                          title="Return student to normal exam access"
+                        >
+                          ✓
+                        </button>
+                      ) : (
+                        <button
+                          className="action-btn lock"
+                          onClick={() => takeAction(s.sessionId, "WAITING")}
+                          title="Move student to waiting state"
+                        >
+                          W
+                        </button>
+                      )}
 
                       <button
                         className="action-btn terminate"
@@ -145,6 +164,7 @@ export default function AdminLiveMonitor() {
                         X
                       </button>
                     </div>
+                    )}
                   </td>
                 </tr>
               ))}

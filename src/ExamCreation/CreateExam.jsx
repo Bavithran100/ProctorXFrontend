@@ -11,6 +11,7 @@ export default function CreateExam() {
       description: "",
       duration: "",
       totalMarks: "",
+      questionCount: "",
       examType: "MCQ",
       instructions: "",
       rules: "",
@@ -26,12 +27,18 @@ export default function CreateExam() {
   }
 
   async function handleCreate(next) {
+    if (!Number(exam.totalMarks) || !Number(exam.questionCount)) {
+      alert("Enter total marks and the planned number of questions");
+      return;
+    }
+
     try {
       const payload = {
         title: exam.title,
         description: exam.description,
         duration: Number(exam.duration),
         totalMarks: Number(exam.totalMarks),
+        questionCount: Number(exam.questionCount),
         examType: exam.examType,
         startTime: exam.startTime,
         endTime: exam.endTime,
@@ -46,15 +53,23 @@ export default function CreateExam() {
 
       if (exam.examType === "CODING") {
         if (next === "AI") {
-          navigate(`/admin/exams/${examId}/coding-plan`);
+          navigate(`/admin/exams/${examId}/coding-plan`, {
+            state: { questionCount: Number(exam.questionCount) }
+          });
         } else {
-          navigate(`/admin/exams/${examId}/coding-manual`);
+          navigate(`/admin/exams/${examId}/coding-manual`, {
+            state: { questionCount: Number(exam.questionCount) }
+          });
         }
       } else {
         if (next === "AI") {
-          navigate(`/admin/exams/${examId}/generate-ai`);
+          navigate(`/admin/exams/${examId}/generate-ai`, {
+            state: { questionCount: Number(exam.questionCount) }
+          });
         } else {
-          navigate(`/admin/exams/${examId}/add-questions`);
+          navigate(`/admin/exams/${examId}/add-questions`, {
+            state: { questionCount: Number(exam.questionCount) }
+          });
         }
       }
     } catch (err) {
@@ -100,6 +115,17 @@ export default function CreateExam() {
                 name="totalMarks"
                 type="number"
                 placeholder="Total Marks"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="field-stack">
+              <label>Number of {exam.examType === "MCQ" ? "MCQ" : "Coding"} Questions</label>
+              <input
+                name="questionCount"
+                type="number"
+                min="1"
+                placeholder="Example: 5"
                 onChange={handleChange}
               />
             </div>

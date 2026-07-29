@@ -27,7 +27,6 @@ Each question must contain:
 - description
 - difficulty
 - allowedLanguage
-- marks
 - referenceSolution
 
 Do NOT generate:
@@ -155,7 +154,6 @@ JSON FORMAT
       "description":"",
       "difficulty":"EASY",
       "allowedLanguage":"JAVA",
-      "marks":10,
       "referenceSolution":""
     }
   ]
@@ -299,9 +297,20 @@ Return exactly ${planningBrief.questionCount} questions. Keep each reference sol
   }
 
   async function save() {
+    if (!planningBrief || questions.length !== Number(planningBrief.questionCount)) {
+      alert(`Generate exactly ${planningBrief?.questionCount || 0} questions before saving`);
+      return;
+    }
+
     try {
       for (let q of questions) {
-        await Client.post(`/admin/exams/${examId}/coding-questions`, q);
+        await Client.post(`/admin/exams/${examId}/coding-questions`, {
+          title: q.title,
+          description: q.description,
+          difficulty: q.difficulty,
+          allowedLanguage: q.allowedLanguage,
+          testCases: q.testCases
+        });
       }
 
       alert("Saved successfully");
@@ -352,7 +361,7 @@ Return exactly ${planningBrief.questionCount} questions. Keep each reference sol
                 <p>{q.description}</p>
 
                 <p>Difficulty: {q.difficulty}</p>
-                <p>Marks: {q.marks}</p>
+                <p>Marks: assigned automatically from the exam total</p>
 
                 <div className="editor-shell">
                   <div className="editor-toolbar">

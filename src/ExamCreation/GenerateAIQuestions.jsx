@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Client from "../Client";
 import "../App.css";
@@ -36,9 +36,11 @@ JSON format:
 export default function GenerateAIQuestions() {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const plannedQuestionCount = location.state?.questionCount;
 
   const [topic, setTopic] = useState("");
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(plannedQuestionCount || 5);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -78,29 +80,26 @@ export default function GenerateAIQuestions() {
     }
   }
 
-  function mapCorrectAnswer(q) {
-    const optionMap = {
-      A: q.optionA,
-      B: q.optionB,
-      C: q.optionC,
-      D: q.optionD
-    };
-
+  function mapQuestion(q) {
     return {
       questionText: q.questionText,
       optionA: q.optionA,
       optionB: q.optionB,
       optionC: q.optionC,
       optionD: q.optionD,
-      correctOption: optionMap[q.correctOption],
-      marks: q.marks
+      correctOption: q.correctOption
     };
   }
 
   async function saveQuestions() {
+    if (plannedQuestionCount && questions.length !== plannedQuestionCount) {
+      alert(`Generate exactly ${plannedQuestionCount} questions for this exam`);
+      return;
+    }
+
     try {
       for (let q of questions) {
-        const payload = mapCorrectAnswer(q);
+        const payload = mapQuestion(q);
         await Client.post(`/admin/exams/${examId}/questions`, payload);
       }
       navigate(`/admin/exams/${examId}/add-questions`);
@@ -138,6 +137,7 @@ export default function GenerateAIQuestions() {
                 type="number"
                 placeholder="Number of questions"
                 value={count}
+                readOnly={Boolean(plannedQuestionCount)}
                 onChange={(e) => setCount(e.target.value)}
               />
             </div>
@@ -163,7 +163,7 @@ export default function GenerateAIQuestions() {
               <div key={i} className="question-preview">
                 <div className="question-preview-header">
                   <h4>Question {i + 1}</h4>
-                  <span className="status-chip">Marks: {q.marks}</span>
+                  <span className="status-chip">Marks assigned automatically</span>
                 </div>
                 <p><b>Prompt:</b> {q.questionText}</p>
                 <div className="options-grid options-list">

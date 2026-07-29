@@ -14,6 +14,7 @@ export default function StartExam() {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
 
   useEffect(() => {
     if (!exam) return;
@@ -64,14 +65,25 @@ export default function StartExam() {
         })
         .catch(err => {
           if (
-            err.response?.status === 403 &&
-            err.response?.data === "TIME_OVER" &&
+            err.response?.data === "EXAM_TIME_OVER_SUBMITTED" &&
             !autoSubmittedRef.current
           ) {
             autoSubmittedRef.current = true;
 
             alert("â° Time finished! Auto submitting exam...");
-            handleSubmit();
+            navigate("/dashboard");
+          }
+          else if (err.response?.data === "EXAM_INACTIVE_SUBMITTED") {
+            alert("Your exam was inactive for more than 10 minutes. Your saved progress was submitted.");
+            navigate("/dashboard");
+          }
+          else if (err.response?.data === "SESSION_WAITING") {
+            alert("You are not allowed to continue this exam. Contact your coordinator.");
+            navigate("/dashboard");
+          }
+          else if (err.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
+            alert("Your exam was submitted by the coordinator.");
+            navigate("/dashboard");
           }
           else if (err.response?.status === 403) {
             alert("Your exam session was stopped by admin");
@@ -86,21 +98,31 @@ export default function StartExam() {
   useEffect(() => {
     Client.get(`/student/exams/${examId}/start`)
       .then(res => {
-        setExam(res.data);
+        setExam(res.data.exam);
+        setRemainingSeconds(res.data.remainingSeconds);
         setLoading(false);
       })
       .catch(err => {
         console.log(err);
-        alert("Unable to load exam or Exam already Submitted");
+        if (err.response?.data === "SESSION_WAITING") {
+          alert("You are not allowed to continue this exam. Contact your coordinator.");
+        } else if (err.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
+          alert("Your exam was submitted by the coordinator.");
+        } else if (err.response?.data === "EXAM_INACTIVE_SUBMITTED" || err.response?.data === "EXAM_TIME_OVER_SUBMITTED") {
+          alert("Your exam has been submitted using your saved progress.");
+        } else {
+          alert("Unable to load exam or exam already submitted.");
+        }
         navigate("/dashboard");
       });
   }, [examId, navigate]);
 
   function handleOptionChange(questionId, option) {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: option
-    }));
+    setAnswers(prev => {
+      const nextAnswers = { ...prev, [questionId]: option };
+      Client.post(`/student/exams/${examId}/progress`, { answers: nextAnswers }).catch(() => {});
+      return nextAnswers;
+    });
   }
 
   async function handleSubmit() {
@@ -174,6 +196,7 @@ export default function StartExam() {
 
         <CountDownTimer
           durationMinutes={exam.duration}
+          remainingSeconds={remainingSeconds}
           onTimeUp={() => {
             alert("â° Time is over! Auto submitting...");
             handleSubmit();
@@ -186,15 +209,20 @@ export default function StartExam() {
               <h4>{index + 1}. {q.questionText}</h4>
 
               <div className="options-grid options-list">
-                {[q.optionA, q.optionB, q.optionC, q.optionD].map((opt, i) => (
-                  <label key={i} className="option">
+              {[
+                { key: "A", text: q.optionA },
+                { key: "B", text: q.optionB },
+                { key: "C", text: q.optionC },
+                { key: "D", text: q.optionD }
+              ].map((opt) => (
+                  <label key={opt.key} className="option">
                     <input
                       type="radio"
                       name={`question-${q.id}`}
-                      checked={answers[q.id] === opt}
-                      onChange={() => handleOptionChange(q.id, opt)}
+                      checked={answers[q.id] === opt.key}
+                      onChange={() => handleOptionChange(q.id, opt.key)}
                     />
-                    <span>{opt}</span>
+                    <span>{opt.text}</span>
                   </label>
                 ))}
               </div>

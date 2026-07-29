@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 export default function CountDownTimer({
   durationMinutes,
+  remainingSeconds,
   onTimeUp
 }) {
   const timeUpHandled = useRef(false);
   const [secondsLeft, setSecondsLeft] = useState(
-    durationMinutes * 60
+    Number.isFinite(remainingSeconds) ? remainingSeconds : durationMinutes * 60
   );
 
   useEffect(() => {

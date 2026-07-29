@@ -37,6 +37,7 @@ public class Main {
   const [results, setResults] = useState([]);
   const [score, setScore] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
 
   const submitExam = useCallback(async () => {
     if (submitting) return;
@@ -60,18 +61,30 @@ public class Main {
 
   useEffect(() => {
     scoreRef.current = score;
-  }, [score]);
+    if (exam) {
+      Client.post(`/student/exams/${examId}/coding-progress`, { score }).catch(() => {});
+    }
+  }, [exam, examId, score]);
 
   useEffect(() => {
     async function startCodingExam() {
       try {
         const startResponse = await Client.get(`/student/exams/${examId}/start`);
         const questionsResponse = await Client.get(`/student/exams/${examId}/coding-questions`);
-        setExam(startResponse.data);
+        setExam(startResponse.data.exam);
+        setRemainingSeconds(startResponse.data.remainingSeconds);
         setQuestions(questionsResponse.data);
       } catch (error) {
         console.error(error);
-        alert("Unable to start coding exam");
+        if (error.response?.data === "SESSION_WAITING") {
+          alert("You are not allowed to continue this exam. Contact your coordinator.");
+        } else if (error.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
+          alert("Your exam was submitted by the coordinator.");
+        } else if (error.response?.data === "EXAM_INACTIVE_SUBMITTED" || error.response?.data === "EXAM_TIME_OVER_SUBMITTED") {
+          alert("Your exam has been submitted using your saved progress.");
+        } else {
+          alert("Unable to start coding exam.");
+        }
         navigate("/dashboard");
       }
     }
@@ -131,13 +144,21 @@ public class Main {
         })
         .catch(error => {
           if (
-            error.response?.status === 403 &&
-            error.response?.data === "TIME_OVER" &&
+            error.response?.data === "EXAM_TIME_OVER_SUBMITTED" &&
             !autoSubmittedRef.current
           ) {
             autoSubmittedRef.current = true;
             alert("Time finished. Submitting coding exam...");
-            submitExam();
+            navigate("/dashboard");
+          } else if (error.response?.data === "EXAM_INACTIVE_SUBMITTED") {
+            alert("Your exam was inactive for more than 10 minutes. Your saved progress was submitted.");
+            navigate("/dashboard");
+          } else if (error.response?.data === "SESSION_WAITING") {
+            alert("You are not allowed to continue this exam. Contact your coordinator.");
+            navigate("/dashboard");
+          } else if (error.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
+            alert("Your exam was submitted by the coordinator.");
+            navigate("/dashboard");
           } else if (error.response?.status === 403) {
             alert("Your exam session was stopped by admin");
             navigate("/dashboard");
@@ -233,6 +254,7 @@ public class Main {
 
         <CountDownTimer
           durationMinutes={exam.duration}
+          remainingSeconds={remainingSeconds}
           onTimeUp={() => {
             if (!autoSubmittedRef.current) {
               autoSubmittedRef.current = true;
