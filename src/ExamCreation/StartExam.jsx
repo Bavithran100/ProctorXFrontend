@@ -56,7 +56,7 @@ export default function StartExam() {
   useEffect(() => {
     if (!exam) return;
 
-    const interval = setInterval(() => {
+    const sendHeartbeat = () => {
       Client.post(`/student/exams/${exam.id}/heartbeat`)
         .then(res => {
           if (res.headers["x-exam-warning"]) {
@@ -78,7 +78,7 @@ export default function StartExam() {
             navigate("/dashboard");
           }
           else if (err.response?.data === "SESSION_WAITING") {
-            alert("You are not allowed to continue this exam. Contact your coordinator.");
+            alert("The coordinator has moved you to the waiting list. You are not allowed to continue this exam. Contact your coordinator.");
             navigate("/dashboard");
           }
           else if (err.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
@@ -90,7 +90,10 @@ export default function StartExam() {
             navigate("/dashboard");
           }
         });
-    }, 10000);
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 5000);
 
     return () => clearInterval(interval);
   }, [exam, navigate]);
@@ -105,7 +108,7 @@ export default function StartExam() {
       .catch(err => {
         console.log(err);
         if (err.response?.data === "SESSION_WAITING") {
-          alert("You are not allowed to continue this exam. Contact your coordinator.");
+          alert("You are in the waiting state. Contact your coordinator to continue this exam.");
         } else if (err.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
           alert("Your exam was submitted by the coordinator.");
         } else if (err.response?.data === "EXAM_INACTIVE_SUBMITTED" || err.response?.data === "EXAM_TIME_OVER_SUBMITTED") {

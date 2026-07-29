@@ -141,7 +141,7 @@ export default function AdminLiveMonitor() {
 
                       {s.status === "WAITING" ? (
                         <button
-                          className="action-btn lock"
+                          className="action-btn resume"
                           onClick={() => takeAction(s.sessionId, "NORMAL")}
                           title="Return student to normal exam access"
                         >
@@ -149,7 +149,7 @@ export default function AdminLiveMonitor() {
                         </button>
                       ) : (
                         <button
-                          className="action-btn lock"
+                          className="action-btn waiting"
                           onClick={() => takeAction(s.sessionId, "WAITING")}
                           title="Move student to waiting state"
                         >

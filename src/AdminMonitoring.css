@@ -100,6 +100,20 @@
   box-shadow: 0 14px 28px rgba(56, 189, 248, 0.18);
 }
 
+.action-btn.waiting {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.72);
+  color: #fde68a;
+  box-shadow: 0 14px 28px rgba(245, 158, 11, 0.28);
+}
+
+.action-btn.resume {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.72);
+  color: #a7f3d0;
+  box-shadow: 0 14px 28px rgba(16, 185, 129, 0.25);
+}
+
 .action-btn.warn {
   box-shadow: 0 14px 28px rgba(245, 158, 11, 0.2);
 }

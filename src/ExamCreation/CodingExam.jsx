@@ -77,7 +77,7 @@ public class Main {
       } catch (error) {
         console.error(error);
         if (error.response?.data === "SESSION_WAITING") {
-          alert("You are not allowed to continue this exam. Contact your coordinator.");
+          alert("You are in the waiting state. Contact your coordinator to continue this exam.");
         } else if (error.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
           alert("Your exam was submitted by the coordinator.");
         } else if (error.response?.data === "EXAM_INACTIVE_SUBMITTED" || error.response?.data === "EXAM_TIME_OVER_SUBMITTED") {
@@ -135,7 +135,7 @@ public class Main {
   useEffect(() => {
     if (!exam) return;
 
-    const interval = setInterval(() => {
+    const sendHeartbeat = () => {
       Client.post(`/student/exams/${exam.id}/heartbeat`)
         .then(response => {
           if (response.headers["x-exam-warning"]) {
@@ -154,7 +154,7 @@ public class Main {
             alert("Your exam was inactive for more than 10 minutes. Your saved progress was submitted.");
             navigate("/dashboard");
           } else if (error.response?.data === "SESSION_WAITING") {
-            alert("You are not allowed to continue this exam. Contact your coordinator.");
+            alert("The coordinator has moved you to the waiting list. You are not allowed to continue this exam. Contact your coordinator.");
             navigate("/dashboard");
           } else if (error.response?.data === "EXAM_TERMINATED_BY_COORDINATOR") {
             alert("Your exam was submitted by the coordinator.");
@@ -164,7 +164,10 @@ public class Main {
             navigate("/dashboard");
           }
         });
-    }, 10000);
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 5000);
 
     return () => clearInterval(interval);
   }, [exam, navigate, submitExam]);
