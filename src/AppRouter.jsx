@@ -22,6 +22,7 @@ import ApproveUsers from "./pages/ApproveUsers";
 import AddCodingQuestion from "./ExamCreation/AddCodingQuestions";
 import GenerateCodingAIQuestions from "./ExamCreation/GenerateCodingAiQuestions";
 import CodingExam from "./ExamCreation/CodingExam";
+import CodingQuestionPlan from "./ExamCreation/CodingQuestionPlan";
 export default function AppRouter() {
     const { isAuthenticated, authChecked,role } = useSelector(state => state.auth);
 
@@ -52,6 +53,7 @@ export default function AppRouter() {
         <Route path="/admin/exams/:examId/add-questions" element={<AddQuestions/>}></Route>
         <Route path="/admin/exams/:examId/generate-ai" element={<GenerateAIQuestions/>}></Route>
            <Route path="/admin/exams/:examId/coding-manual" element={<AddCodingQuestion/>}></Route>
+        <Route path="/admin/exams/:examId/coding-plan" element={<CodingQuestionPlan/>}></Route>
         <Route path="/admin/exams/:examId/coding-ai" element={<GenerateCodingAIQuestions/>}></Route>
         <Route path="/exam/:examId/start" element={<StartExam/>}></Route>
         <Route path="/exam/:examId/start-coding" element={<CodingExam/>}></Route>

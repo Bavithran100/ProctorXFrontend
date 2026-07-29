@@ -46,7 +46,7 @@ export default function CreateExam() {
 
       if (exam.examType === "CODING") {
         if (next === "AI") {
-          navigate(`/admin/exams/${examId}/coding-ai`);
+          navigate(`/admin/exams/${examId}/coding-plan`);
         } else {
           navigate(`/admin/exams/${examId}/coding-manual`);
         }

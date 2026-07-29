@@ -1,52 +1,172 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import Client from "../Client";
 import "../App.css";
 
 export default function GenerateCodingAIQuestions() {
-  const SYSTEM_PROMPT = `
-You are a programming exam generator AI.
+const SYSTEM_PROMPT = `
+You are an expert programming exam generator.
 
-Rules:
-- Generate coding questions
-- Include a correct reference solution in Java
-- Return ONLY valid JSON
-- No markdown, no explanations
-- Generate Beginner level questions
-- Class Name Must be Main
+Your task is to generate coding interview/exam questions and their reference solutions.
 
 IMPORTANT:
-- DO NOT generate testcases
-- DO NOT generate expected output
+Return ONLY valid JSON.
+Do NOT use markdown.
+Do NOT include explanations outside the JSON.
 
-REFERENCE SOLUTION RULES:
-- Must be complete runnable Java code
-- Must use Scanner
-- Must follow STDIN format
-- Must print output correctly
+========================
+QUESTION RULES
+========================
 
-JSON format:
+Generate realistic coding interview questions.
+
+Each question must contain:
+
+- title
+- description
+- difficulty
+- allowedLanguage
+- marks
+- referenceSolution
+
+Do NOT generate:
+- test cases
+- expected outputs
+- hints
+- explanations
+
+========================
+REFERENCE SOLUTION RULES
+========================
+
+The reference solution MUST be a complete runnable Java program.
+
+The class name MUST be:
+
+public class Main
+
+The solution MUST ALWAYS contain:
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // solution
+
+        sc.close();
+    }
+}
+
+The reference solution MUST:
+
+✓ Use Scanner for ALL input.
+✓ Read input from System.in only.
+✓ Print answers using System.out.print or System.out.println.
+✓ Be directly compilable.
+✓ Be directly executable.
+✓ Have exactly one public class named Main.
+
+========================
+STRICTLY FORBIDDEN
+========================
+
+NEVER generate or import:
+
+org.junit.*
+junit.*
+@Test
+Assertions
+assertEquals
+assertTrue
+assertFalse
+Mockito
+Spring Boot
+JUnit
+TestNG
+Maven
+Gradle
+Packages other than java.util.*, java.io.*, java.math.*, java.lang.*
+
+Do NOT create:
+
+test methods
+helper test classes
+unit tests
+mock tests
+sample tests
+
+Never generate:
+
+public class Solution
+
+Always generate:
+
+public class Main
+
+========================
+INPUT FORMAT
+========================
+
+Always read input using Scanner.
+
+Example:
+
+Scanner sc = new Scanner(System.in);
+
+int n = sc.nextInt();
+
+String s = sc.next();
+
+long x = sc.nextLong();
+
+double d = sc.nextDouble();
+
+========================
+OUTPUT FORMAT
+========================
+
+Print ONLY the required output.
+
+Do NOT print prompts like:
+
+Enter number:
+Input:
+Output:
+
+========================
+ALGORITHM
+========================
+
+Generate the most efficient correct solution.
+
+Respect the requested complexity.
+
+========================
+JSON FORMAT
+========================
 
 {
- "questions":[
-   {
-     "title":"",
-     "description":"",
-     "difficulty":"EASY",
-     "allowedLanguage":"JAVA",
-     "marks":10,
-     "referenceSolution":""
-   }
- ]
+  "questions":[
+    {
+      "title":"",
+      "description":"",
+      "difficulty":"EASY",
+      "allowedLanguage":"JAVA",
+      "marks":10,
+      "referenceSolution":""
+    }
+  ]
 }
 `;
 
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const planningBrief = location.state?.plan;
 
-  const [topic, setTopic] = useState("");
-  const [count, setCount] = useState(2);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -55,8 +175,9 @@ JSON format:
   const [generatedOutput, setGeneratedOutput] = useState({});
 
   async function generate() {
-    if (!topic) {
-      alert("Enter a topic first");
+    if (!planningBrief) {
+      alert("Create an AI plan before generating coding questions");
+      navigate(`/admin/exams/${examId}/coding-plan`);
       return;
     }
 
@@ -75,7 +196,17 @@ JSON format:
             model: "llama-3.1-8b-instant",
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: `Generate ${count} coding questions on ${topic}` }
+              {
+                role: "user",
+                content: `Generate ${planningBrief.questionCount} coding questions using this planning brief:\n
+Topic: ${planningBrief.topic}\n
+Difficulty: ${planningBrief.difficulty || "EASY"}\n
+Target complexity: ${planningBrief.targetComplexity || "Choose an appropriate efficient complexity"}\n
+Input constraints: ${planningBrief.constraints || "Define realistic constraints"}\n
+Test-case focus: ${planningBrief.testCaseFocus || "Cover normal, boundary, and edge cases"}\n
+Additional instructions: ${planningBrief.additionalInstructions || "None"}\n
+Return exactly ${planningBrief.questionCount} questions. Keep each reference solution correct, efficient, and compatible with Java class Main.`
+              }
             ],
             temperature: 0.4
           })
@@ -125,6 +256,7 @@ JSON format:
         stdin: input
       });
       const data = res.data;
+      console.log(res);
 
       if (!data.stdout) {
         alert("Error in code");
@@ -191,28 +323,14 @@ JSON format:
           </div>
         </div>
 
-        <div className="field-panel">
-          <div className="form-grid">
-            <div className="field-stack">
-              <label>Topic</label>
-              <input
-                placeholder="Enter topic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-              />
-            </div>
-
-            <div className="field-stack">
-              <label>Question Count</label>
-              <input
-                type="number"
-                min="1"
-                value={count}
-                onChange={(e) => setCount(e.target.value)}
-              />
-            </div>
+        {planningBrief && (
+          <div className="field-panel">
+            <p><b>AI plan:</b> {planningBrief.topic}</p>
+            <p className="helper-text">
+              {planningBrief.questionCount} questions · {planningBrief.difficulty} · {planningBrief.targetComplexity || "efficient solution"}
+            </p>
           </div>
-        </div>
+        )}
 
         <button className="primary-btn" onClick={generate} style={{ marginTop: "20px" }}>
           {loading ? "Generating..." : "Generate"}
