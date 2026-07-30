@@ -1,14 +1,23 @@
 export const COCO_PERSON = 0;
 export const COCO_CELL_PHONE = 67;
+export const YOLO_INPUT_SIZE = 320;
 
-export function videoToTensor(video, canvas) {
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  canvas.width = 640;
-  canvas.height = 640;
-  context.drawImage(video, 0, 0, 640, 640);
-  const pixels = context.getImageData(0, 0, 640, 640).data;
-  const tensor = new Float32Array(3 * 640 * 640);
-  const area = 640 * 640;
+export function createFrameBuffer() {
+  const canvas = document.createElement("canvas");
+  canvas.width = YOLO_INPUT_SIZE;
+  canvas.height = YOLO_INPUT_SIZE;
+  return {
+    canvas,
+    context: canvas.getContext("2d", { willReadFrequently: true }),
+    tensor: new Float32Array(3 * YOLO_INPUT_SIZE * YOLO_INPUT_SIZE)
+  };
+}
+
+export function videoToTensor(video, frameBuffer) {
+  const { context, tensor, canvas } = frameBuffer;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  const area = YOLO_INPUT_SIZE * YOLO_INPUT_SIZE;
 
   for (let index = 0; index < area; index += 1) {
     tensor[index] = pixels[index * 4] / 255;

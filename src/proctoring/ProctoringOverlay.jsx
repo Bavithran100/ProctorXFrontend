@@ -15,7 +15,7 @@ export default function ProctoringOverlay({ examId }) {
 
   useEffect(() => {
     let cancelled = false;
-    let interval;
+    let timer;
     const logEvent = (event, count = 1) => Client.post(`/student/exams/${examId}/malpractice`, null, { params: { event, count } }).catch(() => {});
 
     async function start() {
@@ -28,7 +28,8 @@ export default function ProctoringOverlay({ examId }) {
         const ready = await loadModel();
         if (!ready || cancelled) return;
         setStatus("AI camera monitoring active");
-        interval = setInterval(async () => {
+        const processFrame = async () => {
+          if (cancelled) return;
           try {
             const detections = await detect(videoRef.current);
             if (detections.filter((item) => item.classId === COCO_PERSON).length > 1) personCount.current += 1;
@@ -36,7 +37,9 @@ export default function ProctoringOverlay({ examId }) {
             if (personCount.current >= 50 && !sent.current.multiple) { sent.current.multiple = true; logEvent("MULTIPLE_PERSON", personCount.current); setStatus("Multiple-person risk logged"); }
             if (phoneCount.current >= 70 && !sent.current.phone) { sent.current.phone = true; logEvent("MOBILE_PHONE", phoneCount.current); setStatus("Mobile-phone risk logged"); }
           } catch { setStatus("AI frame processing is retrying..."); }
-        }, 750);
+          if (!cancelled) timer = setTimeout(processFrame, 2000);
+        };
+        processFrame();
       } catch {
         if (!sent.current.camera) { sent.current.camera = true; logEvent("CAMERA_UNAVAILABLE"); }
         setStatus("Camera unavailable — contact the coordinator.");
@@ -48,7 +51,7 @@ export default function ProctoringOverlay({ examId }) {
     };
     document.addEventListener("fullscreenchange", fullscreenChange);
     start();
-    return () => { cancelled = true; clearInterval(interval); document.removeEventListener("fullscreenchange", fullscreenChange); streamRef.current?.getTracks().forEach((track) => track.stop()); };
+    return () => { cancelled = true; clearTimeout(timer); document.removeEventListener("fullscreenchange", fullscreenChange); streamRef.current?.getTracks().forEach((track) => track.stop()); };
   }, [detect, examId, loadModel]);
 
   return <aside className="proctor-overlay"><video ref={videoRef} muted playsInline autoPlay /><span>{error || (loading ? "Loading YOLO..." : status)}</span></aside>;

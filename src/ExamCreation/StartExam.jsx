@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Client from "../Client";
 import "../App.css";
 import CountDownTimer from "./CountDownTimer";
-import ProctoringOverlay from "../proctoring/ProctoringOverlay";
+const ProctoringOverlay = lazy(() => import("../proctoring/ProctoringOverlay"));
 
 export default function StartExam() {
   const autoSubmittedRef = useRef(false);
@@ -179,7 +179,7 @@ export default function StartExam() {
 
   return (
     <div className="exam-page">
-      <ProctoringOverlay examId={exam.id} />
+      <Suspense fallback={null}><ProctoringOverlay examId={exam.id} /></Suspense>
       <div className="exam-container">
         <div className="page-header">
           <div>

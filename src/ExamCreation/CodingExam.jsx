@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import Client from "../Client";
 import "../App.css";
 import CountDownTimer from "./CountDownTimer";
-import ProctoringOverlay from "../proctoring/ProctoringOverlay";
+const ProctoringOverlay = lazy(() => import("../proctoring/ProctoringOverlay"));
 
 export default function CodingExam() {
   const autoSubmittedRef = useRef(false);
@@ -34,7 +34,7 @@ public class Main {
   const [questions, setQuestions] = useState([]);
   const [exam, setExam] = useState(null);
   const [current, setCurrent] = useState(0);
-  const [code, setCode] = useState(BOILER_CODE);
+  const codeRef = useRef(BOILER_CODE);
   const [results, setResults] = useState([]);
   const [score, setScore] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -176,7 +176,7 @@ public class Main {
   const q = questions[current];
 
   async function runCode(input) {
-    const cleanedCode = (code || "").trim();
+    const cleanedCode = (codeRef.current || "").trim();
     const res = await Client.post("/code-execution/generate-output", {
       script: cleanedCode,
       stdin: input
@@ -216,7 +216,7 @@ public class Main {
   function nextQuestion() {
     setCurrent(current + 1);
     setResults([]);
-    setCode("");
+    codeRef.current = "";
   }
 
   if (!q || !exam) {
@@ -233,7 +233,7 @@ public class Main {
 
   return (
     <div className="exam-page">
-      <ProctoringOverlay examId={exam.id} />
+      <Suspense fallback={null}><ProctoringOverlay examId={exam.id} /></Suspense>
       <div className="exam-container">
         <div className="page-header">
           <div>
@@ -288,11 +288,12 @@ public class Main {
             <span>Monaco editor with preserved exam logic</span>
           </div>
           <Editor
+            key={current}
             height="360px"
             defaultLanguage="java"
-            value={code}
+            defaultValue={codeRef.current}
             theme="vs-dark"
-            onChange={v => setCode(v || "")}
+            onChange={v => { codeRef.current = v || ""; }}
           />
         </div>
 
