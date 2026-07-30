@@ -23,6 +23,7 @@ import AddCodingQuestion from "./ExamCreation/AddCodingQuestions";
 import GenerateCodingAIQuestions from "./ExamCreation/GenerateCodingAiQuestions";
 import CodingExam from "./ExamCreation/CodingExam";
 import CodingQuestionPlan from "./ExamCreation/CodingQuestionPlan";
+import ExamSecurityGate from "./proctoring/ExamSecurityGate";
 export default function AppRouter() {
     const { isAuthenticated, authChecked,role } = useSelector(state => state.auth);
 
@@ -57,6 +58,7 @@ export default function AppRouter() {
         <Route path="/admin/exams/:examId/coding-ai" element={<GenerateCodingAIQuestions/>}></Route>
         <Route path="/exam/:examId/start" element={<StartExam/>}></Route>
         <Route path="/exam/:examId/start-coding" element={<CodingExam/>}></Route>
+        <Route path="/exam/:examId/security" element={<ExamSecurityGate/>}></Route>
         <Route path="/exams/today" element={<TodayExams/>} ></Route>
         <Route path="/exams/upcoming" element={<UpcomingExams/>} ></Route>
         <Route path="/admin/monitor" element={<AdminLiveMonitor/>}></Route>

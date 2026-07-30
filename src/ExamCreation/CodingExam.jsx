@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react";
 import Client from "../Client";
 import "../App.css";
 import CountDownTimer from "./CountDownTimer";
+import ProctoringOverlay from "../proctoring/ProctoringOverlay";
 
 export default function CodingExam() {
   const autoSubmittedRef = useRef(false);
@@ -232,6 +233,7 @@ public class Main {
 
   return (
     <div className="exam-page">
+      <ProctoringOverlay examId={exam.id} />
       <div className="exam-container">
         <div className="page-header">
           <div>

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Client from "../Client";
 import "../App.css";
 import CountDownTimer from "./CountDownTimer";
+import ProctoringOverlay from "../proctoring/ProctoringOverlay";
 
 export default function StartExam() {
   const autoSubmittedRef = useRef(false);
@@ -178,6 +179,7 @@ export default function StartExam() {
 
   return (
     <div className="exam-page">
+      <ProctoringOverlay examId={exam.id} />
       <div className="exam-container">
         <div className="page-header">
           <div>

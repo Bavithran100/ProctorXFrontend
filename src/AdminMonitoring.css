@@ -173,6 +173,31 @@
   box-shadow: 0 0 26px rgba(56, 189, 248, 0.16);
 }
 
+.monitor-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 22px 0 30px; }
+.monitor-stat { min-height: 132px; padding: 19px; border: 1px solid var(--border); border-radius: 11px; background: rgba(255,255,255,.025); display: grid; align-content: space-between; }
+.monitor-stat span, .monitor-stat small, .section-heading > span, .row-meta { color: #a1a1aa; font-size: .78rem; }
+.monitor-stat strong { color: #e0e7ff; font-size: 2rem; line-height: 1; }
+.monitor-stat.danger strong { color: #fda4af; }
+.exam-overview-section, .student-session-section { margin-top: 28px; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.section-heading h3 { margin: 0 0 5px; }
+.exam-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 14px; }
+.exam-monitor-card { min-height: 158px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; border: 1px solid var(--border); border-radius: 11px; padding: 16px; background: rgba(255,255,255,.018); color: #e4e4e7; }
+.exam-monitor-card:hover, .exam-monitor-card.selected { border-color: rgba(129,140,248,.7); background: rgba(99,102,241,.12); }
+.exam-monitor-card .exam-card-title, .exam-monitor-card footer { grid-column: 1 / -1; }
+.exam-monitor-card .exam-card-title { font-weight: 700; font-size: .96rem; }
+.exam-monitor-card b { color: #c7d2fe; font-size: 1.25rem; }
+.exam-monitor-card small, .exam-monitor-card footer { color: #a1a1aa; font-size: .73rem; }
+.exam-attendance-chip { padding: 8px 11px; border-radius: 999px; color: #c7d2fe; background: rgba(99,102,241,.15); font-size: .78rem; }
+.row-meta { display: block; margin-top: 5px; }
+.session-status { display: inline-block; padding: 5px 8px; border-radius: 999px; font-size: .68rem; font-weight: 700; letter-spacing: .04em; }
+.session-status.active { color: #a7f3d0; background: rgba(16,185,129,.13); }
+.session-status.waiting { color: #fde68a; background: rgba(245,158,11,.14); }
+.session-status.submitted { color: #c7d2fe; background: rgba(99,102,241,.15); }
+.session-status.terminated { color: #fda4af; background: rgba(244,63,94,.15); }
+.event-pills { display: flex; flex-wrap: wrap; gap: 5px; max-width: 220px; }
+.event-pills span { padding: 5px 7px; border: 1px solid var(--border); border-radius: 6px; color: #cbd5e1; background: rgba(255,255,255,.025); font-size: .67rem; }
+
 .info-content {
   padding: 24px;
 }
@@ -208,6 +233,9 @@
     min-width: 760px;
   }
 }
+
+@media (max-width: 900px) { .monitor-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .monitor-summary-grid { grid-template-columns: 1fr; } .section-heading { align-items: flex-start; flex-direction: column; } }
 
 /* Monitoring surfaces inherit the ProctorX SaaS design system. */
 .table-shell {

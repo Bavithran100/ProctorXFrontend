@@ -71,11 +71,7 @@ export default function TodayExams() {
               <button
                 disabled={btn.disabled}
                 onClick={() => {
-                  if (exam.examType === "CODING") {
-                    navigate(`/exam/${exam.id}/start-coding`);
-                  } else {
-                    navigate(`/exam/${exam.id}/start`);
-                  }
+                  navigate(`/exam/${exam.id}/security`);
                 }}
               >
                 {btn.text}
