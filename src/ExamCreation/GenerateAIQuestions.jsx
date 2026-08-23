@@ -56,7 +56,7 @@ export default function GenerateAIQuestions() {
             Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
           },
           body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            model: "qwen/qwen3.6-27b",//openai/gpt-oss-20b,openai/gpt-oss-120b
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               {
@@ -64,7 +64,10 @@ export default function GenerateAIQuestions() {
                 content: `Generate ${count} MCQ questions on ${topic}`
               }
             ],
-            temperature: 0.4
+            temperature: 0.4,
+response_format: {
+    type: "json_object"
+  }
           })
         }
       );
